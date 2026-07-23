@@ -24,22 +24,121 @@
   },
 
 
+
+  "common": {
+    "add": "Add",
+    "save": "Save",
+    "edit": "Edit",
+    "cancel": "Cancel"
+  },
+
+
   "muraenatx": {
     "addresses": {
-      "title": "MuraenaTX addresses",
+      "title": "Addresses",
       "description": "Addresses currently stored in the transmitter memory",
       "refresh": "Refresh",
       "loading": "Loading addresses...",
       "empty": "No addresses found",
-      "count": "Addresses: {{count}}",
+      "count": "Total: {{count}}",
       "device": "Device: {{device}}",
       "address": "Address",
       "command": "Command",
-      "mask": "Mask"
+      "mask": "Mask",
+      "search": "Search addresses, location or description...",
+      "search_empty": "No matching addresses found",
+      "filtered_count": "{{count}} of {{total}}",
+      "add": "Add",
+      "location": "Location",
+      "map": "Output map",
+      "descr": "Description",
+      "updated": "Updated"
+    },
+
+    "output": {
+      "enabled": "Enabled. Click to set warning",
+      "warning": "Warning. Click to disable",
+      "disabled": "Disabled. Click to enable",
+      "change_failed": "Failed to change output state"
+    },
+
+    "output_labels": {
+      "map": "Map",
+      "billing": "Billing"
+    },
+
+    "description": {
+      "tooltip": "Click to edit description",
+      "dialog_title": "Description for address {{address}}",
+      "field": "Description",
+      "placeholder": "Enter description",
+      "save_hint": "Press Ctrl+Enter to save",
+      "update_success": "Description for address {{address}} was updated",
+      "update_failed": "Failed to update description"
+    },
+
+    "location": {
+      "tooltip": "Click to edit location",
+      "dialog_title": "Location for address {{address}}",
+      "field": "Location",
+      "placeholder": "Enter location",
+      "save_hint": "Press Enter to save",
+      "update_success": "Location for address {{address}} was updated",
+      "update_failed": "Failed to update location"
+    },
+
+    "sync": {
+      "button": "Sync",
+      "syncing": "Syncing",
+      "confirm": "All data on MuraenaTX will be erased and synchronized with the database. Continue?",
+      "success": "MuraenaTX synchronized successfully. Addresses written: {{count}}",
+      "failed": "Failed to synchronize MuraenaTX"
+    },
+
+
+    "address_form": {
+      "add_title": "Add MuraenaTX address",
+      "edit_title": "Edit MuraenaTX address",
+      "address": "Address",
+      "address_helper": "Hexadecimal address from 0000 to 7FFF",
+      "command": "Command",
+      "command_helper": "Two hexadecimal digits, for example 00 or 4A",
+      "mask": "Mask",
+      "mask_helper": "Eight binary digits, for example 01010101",
+      "add_success": "Address {{address}} was added",
+      "edit_success": "Address {{address}} was updated",
+      "save_failed": "Failed to save the address",
+      "location": "Location",
+      "descr": "Description",
+      "map": "Output map",
+      "map_helper": "Eight output identifiers separated by colons",
+      "billing": "Billing",
+      "billing_hint": "Eight billing subscriber IDs separated by colons",
+      "errors": {
+        "address": "Enter an address from 0000 to 7FFF",
+        "command": "Enter two hexadecimal digits",
+        "mask": "Enter exactly eight binary digits",
+        "map": "Enter exactly eight values separated by colons"
+      }
+    },
+
+    "reset": {
+      "tooltip": "Restart MuraenaTX on {{device}}",
+      "confirm": "Do you really want to restart MuraenaTX?",
+      "restarting": "Restarting MuraenaTX...",
+      "success": "MuraenaTX was restarted",
+      "failed": "Failed to restart MuraenaTX"
+    },
+    "delete": {
+      "tooltip": "Delete address {{address}}",
+      "confirm": "Do you really want to delete address {{address}}?",
+      "success": "Address {{address}} was deleted",
+      "failed": "Failed to delete the address"
     },
     "errors": {
       "no_response": "The server did not return a response",
-      "load_failed": "Failed to load MuraenaTX addresses"
+      "load_failed": "Failed to load MuraenaTX addresses",
+      "billing": "Billing must contain exactly eight values separated by colons"
     }
   },
 

@@ -167,21 +167,11 @@ func (c *Client) DebugAll(ctx context.Context) (Response, error) {
 }
 
 func (c *Client) List(ctx context.Context) (ListResult, error) {
-
-	config := c.Config()
-
-	c.SetConfig(Config{
-		Device:      config.Device,
-		BaudRate:    config.BaudRate,
-		Timeout:     30 * time.Second,
-		IdleTimeout: config.IdleTimeout,
-		OpenDelay:   config.OpenDelay,
-		DrainTime:   config.DrainTime,
-	})
-
-	defer c.SetConfig(config)
-
-	response, err := c.Execute(ctx, "LIST")
+	response, err := c.executeWithTimeout(
+		ctx,
+		"LIST",
+		30*time.Second,
+	)
 	if err != nil {
 		return ListResult{
 			Raw: response.Raw,

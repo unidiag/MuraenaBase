@@ -5,12 +5,14 @@ import (
 	"embed"
 	"encoding/hex"
 	"fmt"
+	"main/models"
 	"math/rand"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -284,4 +286,156 @@ func randomString(length int) string {
 func getRandomNumber(p int) int {
 	rand.Seed(time.Now().UnixNano()) // Инициализация генератора случайных чисел текущим временем
 	return rand.Intn(p + 1)          // Генерация случайного числа от 0 до 10 (включительно)
+}
+
+func normalizeAddressValues(value string, fieldName string) (string, error) {
+	parts := strings.Split(
+		strings.TrimSpace(value),
+		":",
+	)
+
+	if len(parts) != 8 {
+		return "", fmt.Errorf(
+			"%s must contain exactly 8 values",
+			fieldName,
+		)
+	}
+
+	normalized := make([]string, 8)
+
+	for index, part := range parts {
+		value := strings.TrimSpace(part)
+
+		if value == "" {
+			value = "0"
+		}
+
+		normalized[index] = value
+	}
+
+	return strings.Join(normalized, ":"), nil
+}
+
+func normalizeBilling(value string) (string, error) {
+	parts := strings.Split(
+		strings.TrimSpace(value),
+		":",
+	)
+
+	if len(parts) != 8 {
+		return "", fmt.Errorf(
+			"Billing must contain exactly 8 values",
+		)
+	}
+
+	normalized := make([]string, 8)
+
+	for index, part := range parts {
+		part = strings.TrimSpace(part)
+
+		if part == "" {
+			part = "0"
+		}
+
+		id, err := strconv.ParseUint(part, 10, 64)
+		if err != nil {
+			return "", fmt.Errorf(
+				"invalid Billing ID %q at output %d",
+				part,
+				index+1,
+			)
+		}
+
+		normalized[index] = strconv.FormatUint(id, 10)
+	}
+
+	return strings.Join(normalized, ":"), nil
+}
+
+func validateUniqueBilling(
+	billing string,
+	excludeAddressID uint,
+) error {
+	currentParts := strings.Split(billing, ":")
+
+	// Сначала проверяем повторы внутри самой редактируемой записи.
+	currentIDs := make(map[string]int)
+
+	for index, value := range currentParts {
+		value = strings.TrimSpace(value)
+
+		// Ноль является пустым идентификатором.
+		if value == "" || value == "0" {
+			continue
+		}
+
+		if previousIndex, exists := currentIDs[value]; exists {
+			return fmt.Errorf(
+				"Billing ID %s is duplicated at outputs %d and %d",
+				value,
+				previousIndex+1,
+				index+1,
+			)
+		}
+
+		currentIDs[value] = index
+	}
+
+	if len(currentIDs) == 0 {
+		return nil
+	}
+
+	var addresses []models.Address
+
+	query := db.
+		Select("id", "addr", "billing")
+
+	if excludeAddressID != 0 {
+		query = query.Where(
+			"id <> ?",
+			excludeAddressID,
+		)
+	}
+
+	if err := query.Find(&addresses).Error; err != nil {
+		return err
+	}
+
+	for _, address := range addresses {
+		storedParts := strings.Split(
+			address.Billing,
+			":",
+		)
+
+		for outputIndex, storedValue := range storedParts {
+			storedValue = strings.TrimSpace(storedValue)
+
+			if storedValue == "" || storedValue == "0" {
+				continue
+			}
+
+			if _, exists := currentIDs[storedValue]; exists {
+				return fmt.Errorf(
+					"Billing ID %s is already used by address %04X, output %d",
+					storedValue,
+					address.Addr,
+					outputIndex+1,
+				)
+			}
+		}
+	}
+
+	return nil
+}
+
+func splitAddressMap(value string) [8]string {
+	var result [8]string
+
+	parts := strings.Split(value, ":")
+
+	for i := 0; i < len(parts) && i < len(result); i++ {
+		result[i] = strings.TrimSpace(parts[i])
+	}
+
+	return result
 }

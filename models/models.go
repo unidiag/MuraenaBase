@@ -4,4 +4,5 @@ var AllModels = []any{
 	&Setting{},
 	&User{},
 	&UserRefreshToken{},
+	&Address{},
 }

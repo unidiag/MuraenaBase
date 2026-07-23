@@ -57,6 +57,18 @@ func (c *Client) Execute(
 	ctx context.Context,
 	command string,
 ) (Response, error) {
+	return c.execute(
+		ctx,
+		command,
+		c.Config().normalized(),
+	)
+}
+
+func (c *Client) execute(
+	ctx context.Context,
+	command string,
+	config Config,
+) (Response, error) {
 	command = strings.TrimSpace(command)
 	if command == "" {
 		return Response{}, ErrEmptyCommand
@@ -65,18 +77,10 @@ func (c *Client) Execute(
 	c.commandMu.Lock()
 	defer c.commandMu.Unlock()
 
-	config := c.Config().normalized()
+	config = config.normalized()
 
 	if config.Device == "" {
 		return Response{}, ErrDeviceNotConfigured
-	}
-
-	if config.Debug {
-		log.Printf(
-			"[MuraenaTX] OPEN device=%s baud=%d",
-			config.Device,
-			config.BaudRate,
-		)
 	}
 
 	port, err := serial.Open(config.Device, &serial.Mode{
@@ -113,12 +117,6 @@ func (c *Client) Execute(
 			return
 		}
 
-		if config.Debug {
-			log.Printf(
-				"[MuraenaTX] CLOSE device=%s",
-				config.Device,
-			)
-		}
 	}()
 
 	if config.OpenDelay > 0 {
@@ -143,7 +141,7 @@ func (c *Client) Execute(
 
 	if config.Debug {
 		log.Printf(
-			"[MuraenaTX] TX %q",
+			"[MuraenaTX] >> %q",
 			command,
 		)
 	}
@@ -153,7 +151,7 @@ func (c *Client) Execute(
 	if err := writeAll(port, payload); err != nil {
 		if config.Debug {
 			log.Printf(
-				"[MuraenaTX] TX ERROR command=%q error=%v",
+				"[MuraenaTX] >> ERROR command=%q error=%v",
 				command,
 				err,
 			)
@@ -175,7 +173,7 @@ func (c *Client) Execute(
 	if err != nil {
 		if config.Debug {
 			log.Printf(
-				"[MuraenaTX] RX ERROR command=%q error=%v",
+				"[MuraenaTX] << ERROR command=%q error=%v",
 				command,
 				err,
 			)
@@ -342,35 +340,32 @@ func waitContext(
 	}
 }
 
+func (c *Client) executeWithTimeout(
+	ctx context.Context,
+	command string,
+	timeout time.Duration,
+) (Response, error) {
+	config := c.Config()
+	config.Timeout = timeout
+
+	return c.execute(ctx, command, config)
+}
+
 func logMuraenaTXResponse(response Response) {
 	const maxLoggedResponseLines = 100
 	total := len(response.Lines)
 
-	log.Printf(
-		"[MuraenaTX] RX BEGIN command=%q lines=%d",
-		response.Command,
-		total,
-	)
+	limit := min(total, maxLoggedResponseLines)
 
-	limit := total
-	if limit > maxLoggedResponseLines {
-		limit = maxLoggedResponseLines
-	}
-
-	for i := 0; i < limit; i++ {
-		log.Printf("[MuraenaTX] RX %s", response.Lines[i])
+	for i := range limit {
+		log.Printf("[MuraenaTX] << %s", response.Lines[i])
 	}
 
 	if total > limit {
 		log.Printf(
-			"[MuraenaTX] RX ... omitted %d lines",
+			"[MuraenaTX] << ... omitted %d lines",
 			total-limit,
 		)
 	}
 
-	log.Printf(
-		"[MuraenaTX] RX END command=%q ok=%t",
-		response.Command,
-		response.OK,
-	)
 }

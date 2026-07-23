@@ -10,7 +10,7 @@ var muraenaTXClient = muraenatx.New(muraenatx.Config{
 	Timeout:     10 * time.Second,
 	IdleTimeout: 150 * time.Millisecond,
 	DrainTime:   50 * time.Millisecond,
-	Debug:       debug,
+	Debug:       true,
 })
 
 func getMuraenaTXClient() *muraenatx.Client {
