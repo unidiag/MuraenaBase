@@ -14,9 +14,9 @@ import (
 
 const APPNAME = "MuraenaBase"
 const APPLINK = "http://github.com/unidiag/MuraenaBase"
-const VERSION = "1.00"
-const BUILD_DATE = "2026-03-21"
-const BUILD_TIME = "09:07:43"
+const VERSION = "1.01"
+const BUILD_DATE = "2026-07-23"
+const BUILD_TIME = "09:47:47"
 
 var dbname = "mbase:mbase@tcp(127.0.0.1:3306)/mbase?charset=utf8mb4&parseTime=True&loc=Local"
 

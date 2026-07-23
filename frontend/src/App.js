@@ -9,6 +9,7 @@ import MenuAppBar from "components/MenuAppBar";
 import { AuthProvider } from "utils/useAuth";
 import { useTranslation } from "react-i18next";
 import MyLink from "components/MyLink";
+import AuthGuard from "components/Auth/AuthGuard";
 
 
 function AppRoutes() {
@@ -30,42 +31,45 @@ function App() {
             minHeight: "100vh",
           }}
         >
-          {/* Menu */}
-          <MenuAppBar pages={urlsMenu} settings={urlsUser} />
 
-          {/* Body */}
-          <Suspense fallback={<RoutesFallback />}>
-            <Box sx={{ flex: 1 }}>
-                <AppRoutes />
+          <AuthGuard>
+            {/* Menu */}
+            <MenuAppBar pages={urlsMenu} settings={urlsUser} />
+
+            {/* Body */}
+            <Suspense fallback={<RoutesFallback />}>
+              <Box sx={{ flex: 1 }}>
+                  <AppRoutes />
+              </Box>
+            </Suspense>
+
+            {/* Footer (also translated) */}
+            <Box
+              component="footer"
+              sx={{
+                py: 1,
+                textAlign: "center",
+                bgcolor: "background.paper",
+                borderTop: "1px solid",
+                borderColor: "divider",
+                color:"#666",
+                fontSize:"0.75rem"
+              }}
+            >
+                © {new Date().getFullYear()}
+                {" "}
+                {t("footer.rights")}
+                {" "}
+                <MyLink
+                  href={process.env.REACT_APP_LINK}
+                  title={process.env.REACT_APP_NAME+" v."+process.env.REACT_APP_VERSION}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >{process.env.REACT_APP_NAME}</MyLink>
+                {". "}
+                {t("footer.build", {version: process.env.REACT_APP_VERSION})}
             </Box>
-          </Suspense>
-
-          {/* Footer (also translated) */}
-          <Box
-            component="footer"
-            sx={{
-              py: 1,
-              textAlign: "center",
-              bgcolor: "background.paper",
-              borderTop: "1px solid",
-              borderColor: "divider",
-              color:"#666",
-              fontSize:"0.75rem"
-            }}
-          >
-              © {new Date().getFullYear()}
-              {" "}
-              {t("footer.rights")}
-              {" "}
-              <MyLink
-                href={process.env.REACT_APP_LINK}
-                title={process.env.REACT_APP_NAME+" v."+process.env.REACT_APP_VERSION}
-                target="_blank"
-                rel="noopener noreferrer"
-              >{process.env.REACT_APP_NAME}</MyLink>
-              {". "}
-              {t("footer.build", {version: process.env.REACT_APP_VERSION})}
-          </Box>
+          </AuthGuard>
 
         </Box>
       </AuthProvider>

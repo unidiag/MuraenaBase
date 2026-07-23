@@ -26,6 +26,12 @@
     "error": "Network error"
   },
 
+  "restart": {
+    "title": "Restart",
+    "confirm": "Do you really want to restart {{appName}}?",
+    "success": "{{appName}} was restarted!"
+  },
+
   "add":"Добавить",
 
   "account": "Аккаунт",

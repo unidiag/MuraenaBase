@@ -83,6 +83,7 @@ func initDB() bool {
 		createDefaultUser("user", "user", 1)
 
 		setSetting("port", setupCfg.Listen, "Web server listen address", "1")
+		setSetting("dev", "/dev/ttyACM0", "MuraenaTX dev path", "1")
 		setSetting("whitelist", "", "ALLOWED addresses and countries (separated by commas)", "2")
 		setSetting("blacklist", "CN, 178.24.52.115", "PROHIBITED addresses and countries (separated by commas)", "3")
 

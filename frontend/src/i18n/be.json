@@ -24,7 +24,11 @@
   "account": "Акаунт",
   "profile": "Профіль карыстальніка",
   "users" : "Карыстальнiкi",
-  "restart": "Рэстарцiць",
+  "restart": {
+    "title": "Restart",
+    "confirm": "Do you really want to restart {{appName}}?",
+    "success": "{{appName}} was restarted!"
+  },
 
   "login": {
     "login": "Уваход",

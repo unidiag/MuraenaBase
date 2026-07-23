@@ -51,17 +51,23 @@ export default function SettingsBlock({readonly}) {
     setOpenDialog(true);
   };
 
+
+
   const handleRestart = () => {
-    if (!window.confirm("Do you really want to restart the program?")) return;
+    const appName = process.env.REACT_APP_NAME || "Application";
+
+    if (!window.confirm(t("restart.confirm", { appName }))) return;
 
     sendDataToServer({ op: "restartProgram" }).then((res) => {
       if (res.status === "OK") {
-        toast.success("AstraFlow was restarted!")
-      }else{
+        toast.success(t("restart.success", { appName }));
+      } else {
         alert(res.status);
       }
     });
   };
+
+
 
   const headCellSx = {
     backgroundColor:
@@ -82,7 +88,7 @@ export default function SettingsBlock({readonly}) {
             onClick={handleRestart}
             disabled={readonly}
           >
-            {t("restart")}
+            {t("restart.title")}
           </Button>}
       >
         <SettingsIcon /> {t("settings.main")}

@@ -40,6 +40,8 @@ var apiRoutes = map[string]APIFn{
 	"restartProgram": apiRestartProgram,
 	// main
 	"getTime": apiGetTime,
+	// muraenatx
+	"getMuraenaTXAddresses": apiGetMuraenaTXAddresses,
 }
 
 func api(data map[string]any, r *http.Request, w http.ResponseWriter) map[string]any {

@@ -1,6 +1,6 @@
 module main
 
-go 1.24.0
+go 1.25.0
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -23,9 +23,10 @@ require (
 	github.com/oschwald/maxminddb-golang v1.13.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/unidiag/go-llama v1.0.0 // indirect
+	go.bug.st/serial v1.8.0 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect

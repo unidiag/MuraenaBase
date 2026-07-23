@@ -16,6 +16,34 @@
     "rights": "All rights reserved",
     "build":  "Build {{version}}"
   },
+
+  "restart": {
+    "title": "Restart",
+    "confirm": "Do you really want to restart {{appName}}?",
+    "success": "{{appName}} was restarted!"
+  },
+
+
+  "muraenatx": {
+    "addresses": {
+      "title": "MuraenaTX addresses",
+      "description": "Addresses currently stored in the transmitter memory",
+      "refresh": "Refresh",
+      "loading": "Loading addresses...",
+      "empty": "No addresses found",
+      "count": "Addresses: {{count}}",
+      "device": "Device: {{device}}",
+      "address": "Address",
+      "command": "Command",
+      "mask": "Mask"
+    },
+    "errors": {
+      "no_response": "The server did not return a response",
+      "load_failed": "Failed to load MuraenaTX addresses"
+    }
+  },
+
+
   "go_home" : "Go Home",
   "unknown_route" : "Unknown route",
   "underconst": "Under constuction..",
@@ -36,7 +64,6 @@
     "adduser":"Add user"
   }, 
   "users":"Users",
-  "restart": "Restart",
 
   "account": "Account",
   "profile": "Settings program",

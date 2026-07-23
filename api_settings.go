@@ -36,32 +36,33 @@ func apiSaveSetting(ctx *ApiCtx) map[string]any {
 	}
 
 	if oldKey == "" || oldKey == key {
-
 		if err := db.
 			Model(&models.Setting{}).
-			Where("key = ?", key).
-			Updates(map[string]any{
-				"value": value,
-			}).Error; err != nil {
-
+			Where("`key` = ?", key).
+			Update("value", value).Error; err != nil {
 			out["status"] = err.Error()
 			return out
 		}
 
+		if settings == nil {
+			settings = make(map[string]string)
+		}
+		settings[key] = value
+
 		var row models.Setting
-		db.First(&row, "key = ?", key)
+		db.First(&row, "`key` = ?", key)
 
 		out["row"] = row
 		return out
 	}
 
 	var row models.Setting
-	if err := db.First(&row, "key = ?", oldKey).Error; err != nil {
+	if err := db.First(&row, "`key` = ?", oldKey).Error; err != nil {
 		out["status"] = err.Error()
 		return out
 	}
 
-	if err := db.Delete(&models.Setting{}, "key = ?", oldKey).Error; err != nil {
+	if err := db.Delete(&models.Setting{}, "`key` = ?", oldKey).Error; err != nil {
 		out["status"] = err.Error()
 		return out
 	}
@@ -75,6 +76,12 @@ func apiSaveSetting(ctx *ApiCtx) map[string]any {
 		out["status"] = err.Error()
 		return out
 	}
+
+	if settings == nil {
+		settings = make(map[string]string)
+	}
+	delete(settings, oldKey)
+	settings[key] = value
 
 	out["row"] = row
 	return out
