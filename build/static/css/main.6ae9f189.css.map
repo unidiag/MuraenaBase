@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/main.d7d6998e.css","mappings":"AAAA,gCACI,wBAA0B,CAC1B,cACJ","sources":["App.css"],"sourcesContent":[".react-flow__edge.selected path {\n    stroke: #7a7777 !important;\n    stroke-width: 2;\n}"],"names":[],"sourceRoot":""}
