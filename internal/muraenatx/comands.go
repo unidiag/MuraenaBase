@@ -60,6 +60,62 @@ func (c *Client) SetSwitch(
 	)
 }
 
+func (c *Client) GetSwitch(
+	ctx context.Context,
+	address uint16,
+) (Switch, Response, error) {
+	if err := validateAddress(address); err != nil {
+		return Switch{}, Response{}, err
+	}
+
+	command := fmt.Sprintf(
+		"ADDR=%04X",
+		address,
+	)
+
+	response, executeErr := c.executeWithTimeout(
+		ctx,
+		command,
+		5*time.Second,
+	)
+
+	for _, line := range response.Lines {
+		line = strings.TrimSpace(line)
+
+		if !strings.HasPrefix(line, "ADDR=") {
+			continue
+		}
+
+		item, err := parseSwitchLine(line)
+		if err != nil {
+			return Switch{}, response, err
+		}
+
+		if item.Address != address {
+			return Switch{}, response, fmt.Errorf(
+				"MuraenaTX returned address %04X instead of %04X",
+				item.Address,
+				address,
+			)
+		}
+
+		// Строка данных успешно разобрана.
+		// Ошибку executeWithTimeout игнорируем, поскольку этот метод
+		// ожидает стандартный ответ, состоящий только из OK.
+		return item, response, nil
+	}
+
+	if executeErr != nil {
+		return Switch{}, response, executeErr
+	}
+
+	return Switch{}, response, fmt.Errorf(
+		"MuraenaTX address %04X was not found in response: %s",
+		address,
+		strings.TrimSpace(response.Raw),
+	)
+}
+
 func (c *Client) SetSwitchWithoutCommand(
 	ctx context.Context,
 	address uint16,

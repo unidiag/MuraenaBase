@@ -108,14 +108,23 @@ func webserver() {
 				out["error"] = "No operation for API"
 			}
 
-			json, err := json.Marshal(out)
+			payload, err := json.Marshal(out)
 			if err != nil {
 				slog("Fail transfer to JSON", "err")
 				return
 			}
-			w.Write([]byte(json))
+			w.Write([]byte(payload))
 		}
 	})
+
+	//  █████╗ ██████╗ ██╗    ██╗   ██╗██████╗
+	// ██╔══██╗██╔══██╗██║    ██║   ██║╚════██╗
+	// ███████║██████╔╝██║    ██║   ██║ █████╔╝
+	// ██╔══██║██╔═══╝ ██║    ╚██╗ ██╔╝██╔═══╝
+	// ██║  ██║██║     ██║     ╚████╔╝ ███████╗
+	// ╚═╝  ╚═╝╚═╝     ╚═╝      ╚═══╝  ╚══════╝
+
+	registerAPIV2Handlers()
 
 	/*	███╗   ███╗ █████╗ ██╗███╗   ██╗
 		████╗ ████║██╔══██╗██║████╗  ██║

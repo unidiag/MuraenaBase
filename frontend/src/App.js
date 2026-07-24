@@ -66,7 +66,7 @@ function App() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >{process.env.REACT_APP_NAME}</MyLink>
-                {". "}
+                {" "}
                 {t("footer.build", {version: process.env.REACT_APP_VERSION})}
             </Box>
           </AuthGuard>

@@ -14,7 +14,7 @@
   "settings": { "main":"Settings", "profile": "Profile", "apps": "My applications", "exit": "Sign out" },
   "footer": {
     "rights": "All rights reserved",
-    "build":  "Build {{version}}"
+    "build":  "v.{{version}}"
   },
 
   "restart": {
