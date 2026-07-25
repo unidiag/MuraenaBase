@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import SyncIcon from "@mui/icons-material/Sync";
 
 import TitleBlock from "components/TitleBlock";
+import MuraenaTXTransmissionSwitch from "components/MuraenaTX/MuraenaTXTransmissionSwitch";
 
 export default function MuraenaTXHeader({
   search,
@@ -113,6 +114,14 @@ export default function MuraenaTXHeader({
           spacing={1}
           alignItems="center"
         >
+
+
+          <MuraenaTXTransmissionSwitch
+            disabled={!device || resetting || syncing}
+          />
+
+
+
           <FormControlLabel
             control={
               <Switch
