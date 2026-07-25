@@ -82,11 +82,13 @@ func initDB() bool {
 		createDefaultUser("admin", "admin", 2)
 		createDefaultUser("user", "user", 1)
 
-		setSetting("port", setupCfg.Listen, "Web server listen address", "1")
+		setSetting("port", setupCfg.Listen, "Web server listen address", "0")
 		setSetting("dev", "/dev/ttyACM0", "MuraenaTX dev path", "1")
+		setSetting("tx", "1", "ON / OFF MuraenaTX", "1")
 		setSetting("whitelist", "", "ALLOWED addresses and countries (separated by commas)", "2")
 		setSetting("blacklist", "CN, 178.24.52.115", "PROHIBITED addresses and countries (separated by commas)", "3")
 		setSetting("apikey", "", "API-key for external services /api/v2/..", "4")
+		setSetting("mappos", "53.89372:27.56521:13", "LAT:LNG:ZOOM for map", "5")
 
 		if setupCfg.InstallSvc {
 			// вычисляем полный путь

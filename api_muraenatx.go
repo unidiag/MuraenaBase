@@ -515,6 +515,105 @@ func apiUpdateMuraenaTXAddress(ctx *ApiCtx) map[string]any {
 	return out
 }
 
+//  ██████╗ ███████╗████████╗    ████████╗██╗  ██╗    ███████╗████████╗ █████╗ ████████╗██╗   ██╗███████╗
+// ██╔════╝ ██╔════╝╚══██╔══╝    ╚══██╔══╝╚██╗██╔╝    ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██║   ██║██╔════╝
+// ██║  ███╗█████╗     ██║          ██║    ╚███╔╝     ███████╗   ██║   ███████║   ██║   ██║   ██║███████╗
+// ██║   ██║██╔══╝     ██║          ██║    ██╔██╗     ╚════██║   ██║   ██╔══██║   ██║   ██║   ██║╚════██║
+// ╚██████╔╝███████╗   ██║          ██║   ██╔╝ ██╗    ███████║   ██║   ██║  ██║   ██║   ╚██████╔╝███████║
+//  ╚═════╝ ╚══════╝   ╚═╝          ╚═╝   ╚═╝  ╚═╝    ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝
+
+func apiGetMuraenaTXTransmissionState(
+	ctx *ApiCtx,
+) map[string]any {
+	out := ctx.Out
+
+	enabled, response, err :=
+		getMuraenaTXClient().TransmissionStatus(
+			ctx.R.Context(),
+		)
+	if err != nil {
+		out["status"] = err.Error()
+		return out
+	}
+
+	out["enabled"] = enabled
+
+	if enabled {
+		out["state"] = "ON"
+	} else {
+		out["state"] = "OFF"
+	}
+
+	out["response"] = response.Raw
+
+	return out
+}
+
+// ███████╗███████╗████████╗    ████████╗██╗  ██╗    ███████╗████████╗ █████╗ ████████╗██╗   ██╗███████╗
+// ██╔════╝██╔════╝╚══██╔══╝    ╚══██╔══╝╚██╗██╔╝    ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██║   ██║██╔════╝
+// ███████╗█████╗     ██║          ██║    ╚███╔╝     ███████╗   ██║   ███████║   ██║   ██║   ██║███████╗
+// ╚════██║██╔══╝     ██║          ██║    ██╔██╗     ╚════██║   ██║   ██╔══██║   ██║   ██║   ██║╚════██║
+// ███████║███████╗   ██║          ██║   ██╔╝ ██╗    ███████║   ██║   ██║  ██║   ██║   ╚██████╔╝███████║
+// ╚══════╝╚══════╝   ╚═╝          ╚═╝   ╚═╝  ╚═╝    ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝
+
+func apiSetMuraenaTXTransmissionState(
+	ctx *ApiCtx,
+) map[string]any {
+	out := ctx.Out
+
+	enabledText := strings.TrimSpace(
+		strings.ToLower(ctx.D["enabled"]),
+	)
+
+	var enabled bool
+
+	switch enabledText {
+	case "1", "true", "on":
+		enabled = true
+
+	case "0", "false", "off":
+		enabled = false
+
+	default:
+		out["status"] = "Invalid transmission state"
+		return out
+	}
+
+	client := getMuraenaTXClient()
+
+	var (
+		response muraenatx.Response
+		err      error
+	)
+
+	if enabled {
+		response, err = client.TransmissionOn(
+			ctx.R.Context(),
+		)
+	} else {
+		response, err = client.TransmissionOff(
+			ctx.R.Context(),
+		)
+	}
+
+	if err != nil {
+		out["status"] = err.Error()
+		return out
+	}
+
+	out["enabled"] = enabled
+
+	if enabled {
+		out["state"] = "ON"
+	} else {
+		out["state"] = "OFF"
+	}
+
+	out["response"] = response.Raw
+
+	return out
+}
+
 // ███████╗████████╗ █████╗ ████████╗███████╗
 // ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██╔════╝
 // ███████╗   ██║   ███████║   ██║   █████╗

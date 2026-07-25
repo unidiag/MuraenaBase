@@ -6,7 +6,7 @@
   "exit": "Exit",
 
   "menu": { 
-    "test": "Test",
+    "map": "Map",
     "stats": "Statistics",
     "export": "Export"
   },
@@ -30,6 +30,14 @@
     "save": "Save",
     "edit": "Edit",
     "cancel": "Cancel"
+  },
+
+
+  "map": {
+    "title": "Map",
+    "errors": {
+      "load_failed": "Failed to load map settings"
+    }
   },
 
 

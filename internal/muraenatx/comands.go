@@ -20,6 +20,37 @@ func (c *Client) TransmissionOff(ctx context.Context) (Response, error) {
 	return c.Execute(ctx, "OFF")
 }
 
+func (c *Client) TransmissionStatus(
+	ctx context.Context,
+) (bool, Response, error) {
+	response, executeErr := c.executeWithTimeout(
+		ctx,
+		"TX?",
+		5*time.Second,
+	)
+
+	for _, line := range response.Lines {
+		line = strings.TrimSpace(line)
+
+		switch strings.ToUpper(line) {
+		case "TX=ON":
+			return true, response, nil
+
+		case "TX=OFF":
+			return false, response, nil
+		}
+	}
+
+	if executeErr != nil {
+		return false, response, executeErr
+	}
+
+	return false, response, fmt.Errorf(
+		"unexpected MuraenaTX response to TX?: %s",
+		strings.TrimSpace(response.Raw),
+	)
+}
+
 func (c *Client) Restart(ctx context.Context) (Response, error) {
 	return c.Execute(ctx, "RESET")
 }

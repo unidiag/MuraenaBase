@@ -34,6 +34,12 @@ type apiV2ListResponse struct {
 	Items []models.Address `json:"items"`
 }
 
+type apiV2TXResponse struct {
+	Enabled  bool   `json:"enabled"`
+	State    string `json:"state"`
+	Response string `json:"response,omitempty"`
+}
+
 type apiV2StateResponse struct {
 	Address   models.Address `json:"address"`
 	BillingID uint64         `json:"billing_id"`
@@ -110,6 +116,15 @@ func apiV2Handler(w http.ResponseWriter, r *http.Request) {
 	case strings.HasPrefix(path, "/api/v2/state/"):
 		apiV2State(w, r, path)
 
+	case path == "/api/v2/tx":
+		apiV2GetTXState(w, r)
+
+	case path == "/api/v2/tx/on":
+		apiV2SetTXState(w, r, true)
+
+	case path == "/api/v2/tx/off":
+		apiV2SetTXState(w, r, false)
+
 	default:
 		writeAPIV2Error(
 			w,
@@ -117,6 +132,86 @@ func apiV2Handler(w http.ResponseWriter, r *http.Request) {
 			"API method not found",
 		)
 	}
+}
+
+func apiV2GetTXState(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	enabled, response, err :=
+		getMuraenaTXClient().TransmissionStatus(
+			r.Context(),
+		)
+	if err != nil {
+		writeAPIV2Error(
+			w,
+			http.StatusBadGateway,
+			err.Error(),
+		)
+		return
+	}
+
+	state := "OFF"
+	if enabled {
+		state = "ON"
+	}
+
+	writeAPIV2JSON(
+		w,
+		http.StatusOK,
+		apiV2TXResponse{
+			Enabled:  enabled,
+			State:    state,
+			Response: response.Raw,
+		},
+	)
+}
+
+func apiV2SetTXState(
+	w http.ResponseWriter,
+	r *http.Request,
+	enabled bool,
+) {
+	client := getMuraenaTXClient()
+
+	var (
+		response muraenatx.Response
+		err      error
+	)
+
+	if enabled {
+		response, err = client.TransmissionOn(
+			r.Context(),
+		)
+	} else {
+		response, err = client.TransmissionOff(
+			r.Context(),
+		)
+	}
+
+	if err != nil {
+		writeAPIV2Error(
+			w,
+			http.StatusBadGateway,
+			err.Error(),
+		)
+		return
+	}
+
+	state := "OFF"
+	if enabled {
+		state = "ON"
+	}
+
+	writeAPIV2JSON(
+		w,
+		http.StatusOK,
+		apiV2TXResponse{
+			Enabled:  enabled,
+			State:    state,
+			Response: response.Raw,
+		},
+	)
 }
 
 func apiV2Index(w http.ResponseWriter) {
@@ -151,6 +246,21 @@ func apiV2Index(w http.ResponseWriter) {
 					Method:      http.MethodGet,
 					Path:        "/api/v2/state/{billing_id}/{state}",
 					Description: "Sets MuraenaTX output state by unique Billing ID. State: 0=disabled, 1=enabled, 2=warning",
+				},
+				{
+					Method:      http.MethodGet,
+					Path:        "/api/v2/tx",
+					Description: "Returns the current MuraenaTX transmission state",
+				},
+				{
+					Method:      http.MethodGet,
+					Path:        "/api/v2/tx/on",
+					Description: "Enables MuraenaTX transmission and saves the state in device NVS",
+				},
+				{
+					Method:      http.MethodGet,
+					Path:        "/api/v2/tx/off",
+					Description: "Disables MuraenaTX transmission and saves the state in device NVS",
 				},
 			},
 		},

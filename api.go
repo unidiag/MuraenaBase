@@ -39,7 +39,9 @@ var apiRoutes = map[string]APIFn{
 	"saveSetting":    apiSaveSetting,
 	"restartProgram": apiRestartProgram,
 	// main
-	"getTime": apiGetTime,
+	"getTime":         apiGetTime,
+	"getMapSettings":  apiGetMapSettings,
+	"saveMapSettings": apiSaveMapSettings,
 	// muraenatx
 	"getMuraenaTXAddresses":          apiGetMuraenaTXAddresses,
 	"resetMuraenaTX":                 apiResetMuraenaTX,
@@ -50,6 +52,8 @@ var apiRoutes = map[string]APIFn{
 	"updateMuraenaTXAddressDescr":    apiUpdateMuraenaTXAddressDescr,
 	"updateMuraenaTXAddressLocation": apiUpdateMuraenaTXAddressLocation,
 	"syncMuraenaTX":                  apiSyncMuraenaTX,
+	"getMuraenaTXTransmissionState":  apiGetMuraenaTXTransmissionState,
+	"setMuraenaTXTransmissionState":  apiSetMuraenaTXTransmissionState,
 }
 
 func api(data map[string]any, r *http.Request, w http.ResponseWriter) map[string]any {
