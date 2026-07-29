@@ -1,8 +1,17 @@
 #!/bin/bash
 
+
+
 APPNAME="MuraenaBase"
 APPNAME_LOWER="${APPNAME,,}"
 APPLINK=http://github.com/unidiag/MuraenaBase
+
+DEMO_HOST="10.8.0.1"
+DEMO_PORT="22"
+DEMO_USER="root"
+DEMO_DIR="/opt/muraenarf"
+DEMO_BINARY="muraenabase"
+DEMO_SERVICE="demo-muraena.service"
 
 
 if [ "$1" = "clean" ]; then
@@ -73,5 +82,27 @@ if [ "$1" = "run" ]; then
     exit 0
 fi
 
-echo "Restart $APPNAME_LOWER.service..."
-sudo systemctl restart $APPNAME_LOWER.service
+echo
+echo "Deploying demo version to $DEMO_HOST..."
+
+scp -P "$DEMO_PORT" \
+    "./$APPNAME_LOWER" \
+    "$DEMO_USER@$DEMO_HOST:$DEMO_DIR/$DEMO_BINARY.new"
+
+ssh -p "$DEMO_PORT" "$DEMO_USER@$DEMO_HOST" "
+    set -e
+
+    chmod 755 '$DEMO_DIR/$DEMO_BINARY.new'
+    systemctl stop '$DEMO_SERVICE'
+    mv -f '$DEMO_DIR/$DEMO_BINARY.new' '$DEMO_DIR/$DEMO_BINARY'
+    systemctl start '$DEMO_SERVICE'
+    systemctl --no-pager --full status '$DEMO_SERVICE'
+"
+
+echo "Demo deployment completed."
+
+
+
+
+#echo "Restart $APPNAME_LOWER.service..."
+#sudo systemctl restart $APPNAME_LOWER.service

@@ -32,7 +32,7 @@ type DBConfig struct {
 func initDB() bool {
 
 	// если база нужна и передана в параметре
-	if len(os.Args) > 1 {
+	if !demoMode && len(os.Args) > 1 {
 		dbname = os.Args[1]
 	}
 
@@ -107,6 +107,10 @@ func initDB() bool {
 	}
 
 	loadSettings()
+
+	if demoMode {
+		initDemoSettings()
+	}
 
 	return firstRun
 }

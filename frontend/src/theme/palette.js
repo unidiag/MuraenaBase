@@ -1,66 +1,108 @@
-// material-ui
-import { alpha, createTheme } from '@mui/material/styles';
+import { alpha, createTheme } from "@mui/material/styles";
 
-// third-party
-import { presetDarkPalettes, presetPalettes } from '@ant-design/colors';
+const PRIMARY = "#48d7c5";
+const PRIMARY_BRIGHT = "#78f3e3";
+const SECONDARY = "#6ca8ff";
 
-// project import
-import ThemeOption from './theme';
-import { ThemeMode } from 'config';
-
-// ==============================|| DEFAULT THEME - PALETTE ||============================== //
-
-const Palette = (mode, presetColor) => {
-  const colors = mode === ThemeMode.DARK ? presetDarkPalettes : presetPalettes;
-
-  let greyPrimary = [
-    '#ffffff',
-    '#fafafa',
-    '#f5f5f5',
-    '#f0f0f0',
-    '#d9d9d9',
-    '#bfbfbf',
-    '#8c8c8c',
-    '#595959',
-    '#262626',
-    '#141414',
-    '#000000'
-  ];
-  let greyAscent = ['#fafafa', '#bfbfbf', '#434343', '#1f1f1f'];
-  let greyConstant = ['#fafafb', '#e6ebf1'];
-
-  if (mode === ThemeMode.DARK) {
-    greyPrimary = ['#000000', '#141414', '#1e1e1e', '#595959', '#8c8c8c', '#bfbfbf', '#d9d9d9', '#f0f0f0', '#f5f5f5', '#fafafa', '#ffffff'];
-    // greyPrimary.reverse();
-    greyAscent = ['#fafafa', '#bfbfbf', '#434343', '#1f1f1f'];
-    greyConstant = ['#121212', '#d3d8db'];
-  }
-  colors.grey = [...greyPrimary, ...greyAscent, ...greyConstant];
-
-  const paletteColor = ThemeOption(colors, presetColor, mode);
-
+const Palette = () => {
   return createTheme({
     palette: {
-      mode,
+      mode: "dark",
+
       common: {
-        black: '#000',
-        white: '#fff'
+        black: "#000000",
+        white: "#ffffff",
       },
-      ...paletteColor,
+
+      primary: {
+        lighter: alpha(PRIMARY, 0.1),
+        light: PRIMARY_BRIGHT,
+        main: PRIMARY,
+        dark: "#2cb6a7",
+        contrastText: "#041312",
+      },
+
+      secondary: {
+        lighter: alpha(SECONDARY, 0.1),
+        light: "#91c0ff",
+        main: SECONDARY,
+        dark: "#4689e8",
+        contrastText: "#071019",
+      },
+
+      error: {
+        lighter: alpha("#ff6b7a", 0.1),
+        light: "#ff929d",
+        main: "#ff6b7a",
+        dark: "#d94c5a",
+        contrastText: "#ffffff",
+      },
+
+      warning: {
+        lighter: alpha("#f5b942", 0.1),
+        light: "#ffd174",
+        main: "#f5b942",
+        dark: "#c98d21",
+        contrastText: "#071019",
+      },
+
+      info: {
+        lighter: alpha(SECONDARY, 0.1),
+        light: "#91c0ff",
+        main: SECONDARY,
+        dark: "#4689e8",
+        contrastText: "#071019",
+      },
+
+      success: {
+        lighter: alpha(PRIMARY, 0.1),
+        light: PRIMARY_BRIGHT,
+        main: PRIMARY,
+        dark: "#2cb6a7",
+        contrastText: "#041312",
+      },
+
       text: {
-        primary: mode === ThemeMode.DARK ? alpha(paletteColor.grey[900], 0.87) : paletteColor.grey[700],
-        secondary: mode === ThemeMode.DARK ? alpha(paletteColor.grey[900], 0.6) : paletteColor.grey[600],
-        disabled: mode === ThemeMode.DARK ? alpha(paletteColor.grey[900], 0.1) : paletteColor.grey[400]
+        primary: "#eef7ff",
+        secondary: "#91a7b8",
+        disabled: alpha("#91a7b8", 0.45),
       },
-      action: {
-        disabled: paletteColor.grey[300]
-      },
-      divider: mode === ThemeMode.DARK ? alpha(paletteColor.grey[900], 0.05) : paletteColor.grey[600],
+
       background: {
-        paper: mode === ThemeMode.DARK ? paletteColor.grey[100] : paletteColor.grey[0],
-        default: paletteColor.grey.A50
-      }
-    }
+        default: "#071019",
+        paper: "#101e2b",
+      },
+
+      divider: alpha("#8db5d2", 0.16),
+
+      action: {
+        active: "#eef7ff",
+        hover: alpha("#ffffff", 0.055),
+        selected: alpha(PRIMARY, 0.1),
+        disabled: alpha("#91a7b8", 0.35),
+        disabledBackground: alpha("#91a7b8", 0.08),
+        focus: alpha(PRIMARY, 0.14),
+      },
+
+      grey: {
+        0: "#ffffff",
+        50: "#eef7ff",
+        100: "#d5e3ed",
+        200: "#b7c9d6",
+        300: "#91a7b8",
+        400: "#6c8293",
+        500: "#52697b",
+        600: "#385064",
+        700: "#243b4e",
+        800: "#162a3b",
+        900: "#101e2b",
+        A50: "#0a1520",
+        A100: "#101e2b",
+        A200: "#162a3b",
+        A400: "#071019",
+        A700: "#91a7b8",
+      },
+    },
   });
 };
 

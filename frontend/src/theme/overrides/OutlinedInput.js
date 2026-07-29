@@ -1,59 +1,70 @@
-// project import
-import { ThemeMode } from 'config';
-import {getColors} from 'theme';
-import {getShadow} from 'theme';
-
-// ==============================|| OVERRIDES - INPUT BORDER & SHADOWS ||============================== //
-
-function getColor({ variant, theme }) {
-  const colors = getColors(theme, variant);
-  const { light } = colors;
-
-  const shadows = getShadow(theme, `${variant}`);
-
-  return {
-    '&:hover .MuiOutlinedInput-notchedOutline': {
-      borderColor: light
-    },
-    '&.Mui-focused': {
-      boxShadow: shadows,
-      '& .MuiOutlinedInput-notchedOutline': {
-        border: `1px solid ${light}`
-      }
-    }
-  };
-}
-
-// ==============================|| OVERRIDES - OUTLINED INPUT ||============================== //
+import { alpha } from "@mui/material/styles";
 
 export default function OutlinedInput(theme) {
   return {
     MuiOutlinedInput: {
       styleOverrides: {
-        input: {
-          padding: '10.5px 14px 10.5px 12px'
-        },
-        notchedOutline: {
-          borderColor: theme.palette.mode === ThemeMode.DARK ? theme.palette.grey[300] : theme.palette.grey[400]
-        },
         root: {
-          ...getColor({ variant: 'primary', theme }),
-          '&.Mui-error': {
-            ...getColor({ variant: 'error', theme })
-          }
+          borderRadius: 11,
+          backgroundColor: alpha(
+            theme.palette.common.white,
+            0.025
+          ),
+
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: alpha(
+              theme.palette.grey[300],
+              0.2
+            ),
+          },
+
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: alpha(
+              theme.palette.primary.main,
+              0.42
+            ),
+          },
+
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.primary.main,
+            borderWidth: 1,
+          },
+
+          "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.error.main,
+          },
+
+          "&.Mui-disabled": {
+            color: theme.palette.text.disabled,
+            backgroundColor: alpha(
+              theme.palette.common.white,
+              0.015
+            ),
+
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: alpha(
+                theme.palette.grey[300],
+                0.08
+              ),
+            },
+          },
         },
+
+        input: {
+          "&::placeholder": {
+            color: theme.palette.text.secondary,
+            opacity: 0.72,
+          },
+        },
+
         inputSizeSmall: {
-          padding: '7.5px 8px 7.5px 12px'
+          padding: "8px 12px",
         },
-        inputMultiline: {
-          padding: 0
+
+        multiline: {
+          padding: 0,
         },
-        colorSecondary: getColor({ variant: 'secondary', theme }),
-        colorError: getColor({ variant: 'error', theme }),
-        colorWarning: getColor({ variant: 'warning', theme }),
-        colorInfo: getColor({ variant: 'info', theme }),
-        colorSuccess: getColor({ variant: 'success', theme })
-      }
-    }
+      },
+    },
   };
 }

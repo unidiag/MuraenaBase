@@ -7,6 +7,7 @@
 
   "menu": { 
     "map": "Map",
+    "api": "API",
     "stats": "Statistics",
     "export": "Export"
   },

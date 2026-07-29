@@ -14,9 +14,9 @@ import (
 
 const APPNAME = "MuraenaBase"
 const APPLINK = "http://github.com/unidiag/MuraenaBase"
-const VERSION = "1.01"
-const BUILD_DATE = "2026-07-25"
-const BUILD_TIME = "11:56:31"
+const VERSION = "1.02"
+const BUILD_DATE = "2026-07-29"
+const BUILD_TIME = "21:46:20"
 
 var dbname = "mbase:mbase@tcp(127.0.0.1:3306)/mbase?charset=utf8mb4&parseTime=True&loc=Local"
 
@@ -40,6 +40,8 @@ var (
 	refreshTTL = 14 * 24 * time.Hour
 
 	llamaClient *llama.Client
+
+	demoMode bool
 )
 
 // ███╗   ███╗ █████╗ ██╗███╗   ██╗
@@ -50,33 +52,48 @@ var (
 // ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
 
 func main() {
+	runtime = time.Now()
 
-	runtime := time.Now()
-	_ = runtime
+	parseRunMode()
 
-	sysLogger, err = syslog.New(syslog.LOG_INFO|syslog.LOG_DAEMON, APPNAME)
+	sysLogger, err = syslog.New(
+		syslog.LOG_INFO|syslog.LOG_DAEMON,
+		APPNAME,
+	)
 	if err != nil {
 		log.Println("syslog init error:", err)
 	}
 
 	debug = isRunThroughGoRun()
-	slog("Server run in DEBUG-mode", "debug")
+
+	if demoMode {
+		slog("Server run in DEMO-mode", "info")
+	} else if debug {
+		slog("Server run in DEBUG-mode", "debug")
+	}
 
 	if dbname != "" {
-		initDB() // инициализация базы данных и wizard, если запуск впервые
+		initDB()
 	} else {
 		port := ":9000"
+
 		if len(os.Args) > 1 {
 			port = os.Args[1]
 		}
+
 		setSetting("port", port)
 	}
-	initGeoIP() // использовать базу данных IP. можно закомментировать, тогда не используется ./geoip.mmdb
 
+	if demoMode {
+		if err := initDemoData(); err != nil {
+			log.Fatal("Demo data init error:", err)
+		}
+	}
+
+	initGeoIP()
 	go webserver()
 
 	for {
 		delay(1000)
 	}
-
 }

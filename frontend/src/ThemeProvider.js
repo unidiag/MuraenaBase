@@ -1,39 +1,11 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import ThemeCustomization from 'theme';
-import { ThemeMode } from 'config';
+import React from "react";
 
-export const ThemeModeContext = createContext({
-  mode: ThemeMode.LIGHT,
-  toggleMode: () => {}
-});
+import ThemeCustomization from "theme";
 
-const STORAGE_KEY = 'ui:mode';
-
-export default function ThemeModeProvider({ children, defaultMode = ThemeMode.DARK }) {
-  const [mode, setMode] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === ThemeMode.DARK || saved === ThemeMode.LIGHT) return saved;
-    } catch {}
-    return defaultMode;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, mode);
-    } catch {}
-  }, [mode]);
-
-  const toggleMode = useCallback(
-    () => setMode((m) => (m === ThemeMode.DARK ? ThemeMode.LIGHT : ThemeMode.DARK)),
-    []
-  );
-
-  const ctx = useMemo(() => ({ mode, toggleMode }), [mode, toggleMode]);
-
+export default function ThemeModeProvider({ children }) {
   return (
-    <ThemeModeContext.Provider value={ctx}>
-      <ThemeCustomization mode={mode}>{children}</ThemeCustomization>
-    </ThemeModeContext.Provider>
+    <ThemeCustomization>
+      {children}
+    </ThemeCustomization>
   );
 }

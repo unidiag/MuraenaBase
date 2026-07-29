@@ -14,7 +14,6 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import { NavLink } from 'react-router-dom';
 import AccountMenu from './AccountMenu';
-import ThemeToggleButton from './ThemeToggleButton';
 import { t } from 'i18next';
 import LanguageChip from './LanguageChip';
 import { ReactComponent as Logo } from "assets/logo.svg";
@@ -29,16 +28,15 @@ export default function MenuAppBar({ pages, settings }) {
   return (
     <AppBar
       position="sticky"
-      color="transparent"
       elevation={0}
-      sx={(theme) => ({
-        backdropFilter: 'blur(6px)',
+      sx={{
+        borderBottom: "1px solid",
+        borderColor: "divider",
         backgroundColor:
-          theme.palette.mode === 'light'
-            ? alpha(theme.palette.background.paper, 0.8)
-            : alpha(theme.palette.background.default, 0.6),
-        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.3)}`
-      })}
+          "rgba(7, 16, 25, 0.78)",
+        backgroundImage: "none",
+        backdropFilter: "blur(18px)",
+      }}
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ minHeight: 64, px: { xs: 1, md: 2 } }}>
@@ -213,7 +211,6 @@ export default function MenuAppBar({ pages, settings }) {
           {/* Right tools: theme switch + account */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <LanguageChip />
-            <ThemeToggleButton />
             <AccountMenu
               settings={settings}
               avatarSrc="/avatar.jpg"

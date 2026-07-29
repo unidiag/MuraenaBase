@@ -38,6 +38,11 @@ type muraenaTXAddressRow struct {
 // ╚══════╝╚═╝╚══════╝   ╚═╝
 
 func apiGetMuraenaTXAddresses(ctx *ApiCtx) map[string]any {
+
+	if demoMode {
+		return apiGetDemoMuraenaTXAddresses(ctx)
+	}
+
 	out := ctx.Out
 
 	result, err := getMuraenaTXClient().List(ctx.R.Context())
@@ -96,6 +101,11 @@ func apiGetMuraenaTXAddresses(ctx *ApiCtx) map[string]any {
 // ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝
 
 func apiResetMuraenaTX(ctx *ApiCtx) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	device := getSetting("dev")
@@ -123,6 +133,11 @@ func apiResetMuraenaTX(ctx *ApiCtx) map[string]any {
 // ╚═════╝ ╚══════╝╚══════╝╚══════╝   ╚═╝   ╚══════╝
 
 func apiDeleteMuraenaTXAddress(ctx *ApiCtx) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	addressValue, err := strconv.ParseUint(
@@ -185,6 +200,11 @@ func apiDeleteMuraenaTXAddress(ctx *ApiCtx) map[string]any {
 // ╚═╝  ╚═╝╚═════╝ ╚═════╝
 
 func apiSaveMuraenaTXAddress(ctx *ApiCtx) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	addressValue, err := strconv.ParseUint(
@@ -319,6 +339,11 @@ func apiSaveMuraenaTXAddress(ctx *ApiCtx) map[string]any {
 // ╚══════╝╚═════╝ ╚═╝   ╚═╝
 
 func apiUpdateMuraenaTXAddress(ctx *ApiCtx) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	oldAddressValue, err := strconv.ParseUint(
@@ -559,6 +584,11 @@ func apiGetMuraenaTXTransmissionState(
 func apiSetMuraenaTXTransmissionState(
 	ctx *ApiCtx,
 ) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	enabledText := strings.TrimSpace(
@@ -622,6 +652,11 @@ func apiSetMuraenaTXTransmissionState(
 // ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚══════╝
 
 func apiSetMuraenaTXOutputState(ctx *ApiCtx) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	addressValue, err := strconv.ParseUint(
@@ -701,6 +736,11 @@ func apiSetMuraenaTXOutputState(ctx *ApiCtx) map[string]any {
 // ╚═════╝ ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
 func apiUpdateMuraenaTXAddressDescr(ctx *ApiCtx) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	addressText := strings.TrimSpace(ctx.D["address"])
@@ -802,6 +842,11 @@ func apiUpdateMuraenaTXAddressLocation(ctx *ApiCtx) map[string]any {
 // ╚══════╝   ╚═╝   ╚═╝  ╚═══╝ ╚═════╝
 
 func apiSyncMuraenaTX(ctx *ApiCtx) map[string]any {
+
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
 	out := ctx.Out
 
 	var addresses []models.Address
