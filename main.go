@@ -15,10 +15,15 @@ import (
 const APPNAME = "MuraenaBase"
 const APPLINK = "http://github.com/unidiag/MuraenaBase"
 const VERSION = "1.01"
-const BUILD_DATE = "2026-07-23"
-const BUILD_TIME = "09:47:47"
+const BUILD_DATE = "2026-07-25"
+const BUILD_TIME = "11:56:31"
 
 var dbname = "mbase:mbase@tcp(127.0.0.1:3306)/mbase?charset=utf8mb4&parseTime=True&loc=Local"
+
+// CREATE DATABASE IF NOT EXISTS mbase CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// CREATE USER IF NOT EXISTS 'mbase'@'127.0.0.1' IDENTIFIED BY 'mbase';
+// GRANT ALL PRIVILEGES ON mbase.* TO 'mbase'@'127.0.0.1';
+// FLUSH PRIVILEGES;
 
 var (
 	mu        sync.Mutex

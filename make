@@ -1,8 +1,8 @@
 #!/bin/bash
 
-APPNAME="AppName"
+APPNAME="MuraenaBase"
 APPNAME_LOWER="${APPNAME,,}"
-APPLINK=http://github.com/unidiag/AppName
+APPLINK=http://github.com/unidiag/MuraenaBase
 
 
 if [ "$1" = "clean" ]; then

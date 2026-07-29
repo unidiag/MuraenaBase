@@ -3,3 +3,4 @@ appname
 *.db
 *.sqlite3
 geoip.mmdb
+muraenabase
