@@ -5,11 +5,9 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // Load all language bundles up-front to avoid race with detection
 import en from './en.json';
 import ru from './ru.json';
-import be from './be.json';
 
 export const LANGS = [
-  //{ code: 'ru', label: 'Русский', short: 'RU', flag: '🇷🇺' },
-  { code: 'be', label: 'Беларуская', short: 'BE', flag: '🇧🇾' },
+  { code: 'ru', label: 'Русский', short: 'RU', flag: '🇷🇺' },
   { code: 'en', label: 'English', short: 'EN', flag: '🇺🇸' },
 ];
 
@@ -39,7 +37,6 @@ i18n
     resources: {
       en: { common: en },
       ru: { common: ru },
-      be: { common: be },
     }
   });
 
