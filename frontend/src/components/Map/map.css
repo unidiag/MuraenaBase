@@ -1,0 +1,8 @@
+.muraena-address-tooltip-pinned {
+  pointer-events: auto !important;
+  cursor: default;
+}
+
+.muraena-address-tooltip-pinned * {
+  pointer-events: auto;
+}

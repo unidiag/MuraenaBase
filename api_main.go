@@ -25,6 +25,11 @@ func apiGetMapSettings(ctx *ApiCtx) map[string]any {
 }
 
 func apiSaveMapSettings(ctx *ApiCtx) map[string]any {
+
+	if demoMode {
+		return apiGetDemoMuraenaTXAddresses(ctx)
+	}
+
 	out := ctx.Out
 	value := strings.TrimSpace(ctx.D["mappos"])
 
@@ -64,4 +69,60 @@ func apiSaveMapSettings(ctx *ApiCtx) map[string]any {
 	out["mappos"] = mappos
 
 	return out
+}
+
+// ██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ███████╗
+// ██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗██╔════╝
+// ███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝███████╗
+// ██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗╚════██║
+// ██║  ██║███████╗███████╗██║     ███████╗██║  ██║███████║
+// ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝
+
+func parseLatLng(value string) (float64, float64, error) {
+	parts := strings.Split(strings.TrimSpace(value), ":")
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf("invalid coordinates")
+	}
+
+	latitude, err := strconv.ParseFloat(parts[0], 64)
+	if err != nil || latitude < -90 || latitude > 90 {
+		return 0, 0, fmt.Errorf("invalid latitude")
+	}
+
+	longitude, err := strconv.ParseFloat(parts[1], 64)
+	if err != nil || longitude < -180 || longitude > 180 {
+		return 0, 0, fmt.Errorf("invalid longitude")
+	}
+
+	return latitude, longitude, nil
+}
+
+func normalizeLatLng(value string) (string, error) {
+	latitude, longitude, err := parseLatLng(value)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%.5f:%.5f", latitude, longitude), nil
+}
+
+func getMapCenterLatLng() string {
+	value := getSetting(
+		"mappos",
+		"53.89372:27.56521:13",
+	)
+
+	parts := strings.Split(value, ":")
+	if len(parts) != 3 {
+		return "53.89372:27.56521"
+	}
+
+	latLng, err := normalizeLatLng(
+		parts[0] + ":" + parts[1],
+	)
+	if err != nil {
+		return "53.89372:27.56521"
+	}
+
+	return latLng
 }

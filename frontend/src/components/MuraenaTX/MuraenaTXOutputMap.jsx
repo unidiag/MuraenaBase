@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Stack,
   Tooltip,
+  Box,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -40,6 +41,8 @@ export default function MuraenaTXOutputMap({
   changingOutput,
   disabled,
   onOutputClick,
+  columns = 0,
+  showTooltips = true,
 }) {
   const { t } = useTranslation();
 
@@ -57,8 +60,142 @@ export default function MuraenaTXOutputMap({
   while (outputs.length < 8) {
     outputs.push("0");
   }
-  
-  const { maskBits, commandBits } = getRowBits(row);
+
+  const { maskBits, commandBits } =
+    getRowBits(row);
+
+  const content = outputs.map(
+    (item, outputIndex) => {
+      const value = item.trim() || "0";
+
+      const maskEnabled =
+        maskBits[outputIndex] === "1";
+
+      const commandEnabled =
+        commandBits[outputIndex] === "1";
+
+      const color = commandEnabled
+        ? "warning"
+        : maskEnabled
+          ? "success"
+          : "error";
+
+      const actionKey =
+        `${row.address_hex}-${outputIndex}`;
+
+      const changing =
+        changingOutput === actionKey;
+
+      const tooltipKey =
+        color === "success"
+          ? "enabled"
+          : color === "warning"
+            ? "warning"
+            : "disabled";
+
+      const chip = (
+
+        
+          <Chip
+            size="small"
+            color={color}
+            variant="filled"
+            clickable={!disabled}
+            disabled={disabled}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
+            onMouseDown={(event) => {
+              event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+
+              onOutputClick?.(
+                row,
+                outputIndex
+              );
+            }}
+            label={
+              changing ? (
+                <CircularProgress
+                  size={14}
+                  color="inherit"
+                />
+              ) : (
+                highlightText(value, search)
+              )
+            }
+            sx={{
+              width: columns
+                ? "100%"
+                : "auto",
+
+              minWidth: columns
+                ? 0
+                : 56,
+
+              cursor: disabled
+                ? "default"
+                : "pointer",
+
+              ml:
+                !columns &&
+                outputIndex === 4
+                  ? 2
+                  : 0,
+
+              "& .MuiChip-label": {
+                width: columns
+                  ? "100%"
+                  : "auto",
+
+                textAlign: "center",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              },
+            }}
+          />
+
+
+      );
+
+      if (!showTooltips) {
+        return (
+          <React.Fragment key={actionKey}>
+            {chip}
+          </React.Fragment>
+        );
+      }
+
+      return (
+        <Tooltip
+          key={actionKey}
+          title={t(
+            `muraenatx.output.${tooltipKey}`
+          )}
+        >
+          {chip}
+        </Tooltip>
+      );
+    }
+  );
+
+  if (columns > 0) {
+    return (
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns:
+            `repeat(${columns}, minmax(0, 1fr))`,
+          gap: 0.5,
+        }}
+      >
+        {content}
+      </Box>
+    );
+  }
 
   return (
     <Stack
@@ -67,71 +204,7 @@ export default function MuraenaTXOutputMap({
       useFlexGap
       flexWrap="wrap"
     >
-      {outputs.map((item, outputIndex) => {
-        const value = item.trim() || "0";
-
-        const maskEnabled =
-          maskBits[outputIndex] === "1";
-
-        const commandEnabled =
-          commandBits[outputIndex] === "1";
-
-        const color = commandEnabled
-          ? "warning"
-          : maskEnabled
-            ? "success"
-            : "error";
-
-        const actionKey =
-          `${row.address_hex}-${outputIndex}`;
-
-        const changing =
-          changingOutput === actionKey;
-
-        const tooltipKey =
-          color === "success"
-            ? "enabled"
-            : color === "warning"
-              ? "warning"
-              : "disabled";
-
-        return (
-          <Tooltip
-            key={actionKey}
-            title={t(
-              `muraenatx.output.${tooltipKey}`
-            )}
-          >
-            <Chip
-              size="small"
-              color={color}
-              variant="filled"
-              clickable
-              disabled={disabled}
-              onClick={() =>
-                onOutputClick(row, outputIndex)
-              }
-              label={
-                changing ? (
-                  <CircularProgress
-                    size={14}
-                    color="inherit"
-                  />
-                ) : (
-                  highlightText(value, search)
-                )
-              }
-              sx={{
-                cursor: disabled
-                  ? "default"
-                  : "pointer",
-                minWidth: 56,
-                ml: outputIndex === 4 ? 2 : 0,
-              }}
-            />
-          </Tooltip>
-        );
-      })}
+      {content}
     </Stack>
   );
 }

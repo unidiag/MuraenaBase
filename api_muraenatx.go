@@ -21,11 +21,13 @@ type muraenaTXAddressRow struct {
 	Mask       uint8  `json:"mask"`
 	MaskBinary string `json:"mask_binary"`
 
-	ID        uint      `json:"id"`
-	Location  string    `json:"location"`
-	Descr     string    `json:"descr"`
-	Map       string    `json:"map"`
-	Billing   string    `json:"billing"`
+	ID       uint   `json:"id"`
+	Location string `json:"location"`
+	Descr    string `json:"descr"`
+	Map      string `json:"map"`
+	Billing  string `json:"billing"`
+	LatLng   string `json:"latlng"`
+
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -77,11 +79,13 @@ func apiGetMuraenaTXAddresses(ctx *ApiCtx) map[string]any {
 			Mask:       item.Mask,
 			MaskBinary: fmt.Sprintf("%08b", item.Mask),
 
-			ID:        stored.ID,
-			Location:  stored.Location,
-			Descr:     stored.Descr,
-			Map:       stored.Map,
-			Billing:   stored.Billing,
+			ID:       stored.ID,
+			Location: stored.Location,
+			Descr:    stored.Descr,
+			Map:      stored.Map,
+			Billing:  stored.Billing,
+			LatLng:   stored.LatLng,
+
 			CreatedAt: stored.CreatedAt,
 			UpdatedAt: stored.UpdatedAt,
 		})
@@ -301,6 +305,7 @@ func apiSaveMuraenaTXAddress(ctx *ApiCtx) map[string]any {
 		Descr:    strings.TrimSpace(ctx.D["descr"]),
 		Map:      mapValue,
 		Billing:  billingValue,
+		LatLng:   getMapCenterLatLng(),
 	}
 
 	if err := db.Create(&model).Error; err != nil {
@@ -327,6 +332,93 @@ func apiSaveMuraenaTXAddress(ctx *ApiCtx) map[string]any {
 	out["id"] = model.ID
 	out["address"] = fmt.Sprintf("%04X", address)
 	out["response"] = response.Raw
+
+	return out
+}
+
+type mapAddressRow struct {
+	ID       uint   `json:"id"`
+	Address  string `json:"address"`
+	Location string `json:"location"`
+	Descr    string `json:"descr"`
+	LatLng   string `json:"latlng"`
+}
+
+func apiGetMapAddresses(ctx *ApiCtx) map[string]any {
+	out := ctx.Out
+
+	var addresses []models.Address
+
+	if err := db.
+		Order("addr ASC").
+		Find(&addresses).Error; err != nil {
+		out["status"] = err.Error()
+		return out
+	}
+
+	defaultLatLng := getMapCenterLatLng()
+	rows := make([]mapAddressRow, 0, len(addresses))
+
+	for _, address := range addresses {
+		latLng := strings.TrimSpace(address.LatLng)
+		if _, _, err := parseLatLng(latLng); err != nil {
+			latLng = defaultLatLng
+		}
+
+		rows = append(rows, mapAddressRow{
+			ID:       address.ID,
+			Address:  address.AddrHex(),
+			Location: address.Location,
+			Descr:    address.Descr,
+			LatLng:   latLng,
+		})
+	}
+
+	out["rows"] = rows
+
+	return out
+}
+
+func apiUpdateMapAddressLatLng(ctx *ApiCtx) map[string]any {
+	if out, rejected := rejectDemoWrite(ctx); rejected {
+		return out
+	}
+
+	out := ctx.Out
+
+	id, err := strconv.ParseUint(
+		strings.TrimSpace(ctx.D["id"]),
+		10,
+		64,
+	)
+	if err != nil || id == 0 {
+		out["status"] = "invalid address id"
+		return out
+	}
+
+	latLng, err := normalizeLatLng(ctx.D["latlng"])
+	if err != nil {
+		out["status"] = err.Error()
+		return out
+	}
+
+	result := db.
+		Model(&models.Address{}).
+		Where("id = ?", uint(id)).
+		Update("lat_lng", latLng)
+
+	if result.Error != nil {
+		out["status"] = result.Error.Error()
+		return out
+	}
+
+	if result.RowsAffected == 0 {
+		out["status"] = "address not found"
+		return out
+	}
+
+	out["id"] = uint(id)
+	out["latlng"] = latLng
 
 	return out
 }

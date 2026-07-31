@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"main/models"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -12,7 +13,16 @@ import (
 	"gorm.io/gorm"
 )
 
-const demoAddressCount = 150
+const (
+	demoAddressCount = 150
+
+	demoMinskCenterLat = 53.89372
+	demoMinskCenterLng = 27.56521
+
+	// Approximate demo area within Minsk.
+	demoMinskLatRadius = 0.065
+	demoMinskLngRadius = 0.105
+)
 
 func parseRunMode() {
 	if len(os.Args) < 2 {
@@ -26,6 +36,29 @@ func parseRunMode() {
 		demoMode = true
 		dbname = "demo.sqlite3"
 	}
+}
+
+func makeDemoLatLng(rnd *rand.Rand) string {
+	angle := rnd.Float64() * 2 * math.Pi
+
+	// sqrt() provides uniform distribution over the ellipse area.
+	distance := math.Sqrt(rnd.Float64())
+
+	latitude := demoMinskCenterLat +
+		math.Cos(angle)*
+			demoMinskLatRadius*
+			distance
+
+	longitude := demoMinskCenterLng +
+		math.Sin(angle)*
+			demoMinskLngRadius*
+			distance
+
+	return fmt.Sprintf(
+		"%.5f:%.5f",
+		latitude,
+		longitude,
+	)
 }
 
 func initDemoData() error {
@@ -104,6 +137,8 @@ func makeDemoAddresses(count int) []models.Address {
 				billingNumbers,
 				":",
 			),
+
+			LatLng: makeDemoLatLng(rnd),
 
 			CreatedAt: now.Add(
 				-time.Duration(count-i) *
@@ -306,11 +341,13 @@ func apiGetDemoMuraenaTXAddresses(
 					item.Mask,
 				),
 
-				ID:        item.ID,
-				Location:  item.Location,
-				Descr:     item.Descr,
-				Map:       item.Map,
-				Billing:   item.Billing,
+				ID:       item.ID,
+				Location: item.Location,
+				Descr:    item.Descr,
+				Map:      item.Map,
+				Billing:  item.Billing,
+				LatLng:   item.LatLng,
+
 				CreatedAt: item.CreatedAt,
 				UpdatedAt: item.UpdatedAt,
 			},

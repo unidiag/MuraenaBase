@@ -39,9 +39,11 @@ var apiRoutes = map[string]APIFn{
 	"saveSetting":    apiSaveSetting,
 	"restartProgram": apiRestartProgram,
 	// main
-	"getTime":         apiGetTime,
-	"getMapSettings":  apiGetMapSettings,
-	"saveMapSettings": apiSaveMapSettings,
+	"getTime":                apiGetTime,
+	"getMapSettings":         apiGetMapSettings,
+	"saveMapSettings":        apiSaveMapSettings,
+	"getMapAddresses":        apiGetMapAddresses,
+	"updateMapAddressLatLng": apiUpdateMapAddressLatLng,
 	// muraenatx
 	"getMuraenaTXAddresses":          apiGetMuraenaTXAddresses,
 	"resetMuraenaTX":                 apiResetMuraenaTX,

@@ -13,6 +13,7 @@ type Address struct {
 	Descr    string `gorm:"size:1024;not null;default:''" json:"descr"`
 	Map      string `gorm:"size:1024;not null;default:''" json:"map"`
 	Billing  string `gorm:"size:1024;not null;default:''" json:"billing"`
+	LatLng   string `gorm:"size:64;not null;default:''" json:"latlng"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

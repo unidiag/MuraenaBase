@@ -1,352 +1,531 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
+import "components/Map/map.css";
+
 import {
   Box,
-  CircularProgress,
   Container,
 } from "@mui/material";
+
 import MapIcon from "@mui/icons-material/Map";
-import AddIcon from "@mui/icons-material/Add";
-import {
-  MapContainer,
-  TileLayer,
-  useMapEvents,
-} from "react-leaflet";
+
 import { useTranslation } from "react-i18next";
 
 import TitleBlock from "components/TitleBlock";
+
+import MapCanvas from "components/Map/MapCanvas";
+import MapLoader from "components/Map/MapLoader";
+
+import {
+  DEFAULT_MAP_POSITION,
+} from "components/Map/constants";
+
+import {
+  formatLatLng,
+  formatMapPosition,
+  parseMapPosition,
+  prepareMapAddresses,
+} from "components/Map/utils";
+
+import {
+  bitsToByte,
+  getNextOutputState,
+} from "components/MuraenaTX/muraenaTXUtils";
+
 import { sendDataToServer } from "utils/functions";
 import { useToast } from "utils/useToast";
 
 import "leaflet/dist/leaflet.css";
-
-const DEFAULT_MAP_POSITION = {
-  latitude: 53.89372,
-  longitude: 27.56521,
-  zoom: 13,
-};
-
-function parseMapPosition(value) {
-  if (typeof value !== "string") {
-    return DEFAULT_MAP_POSITION;
-  }
-
-  const parts = value.split(":");
-
-  if (parts.length !== 3) {
-    return DEFAULT_MAP_POSITION;
-  }
-
-  const latitude = Number.parseFloat(parts[0]);
-  const longitude = Number.parseFloat(parts[1]);
-  const zoom = Number.parseInt(parts[2], 10);
-
-  if (
-    !Number.isFinite(latitude) ||
-    !Number.isFinite(longitude) ||
-    !Number.isInteger(zoom) ||
-    latitude < -90 ||
-    latitude > 90 ||
-    longitude < -180 ||
-    longitude > 180 ||
-    zoom < 1 ||
-    zoom > 19
-  ) {
-    return DEFAULT_MAP_POSITION;
-  }
-
-  return {
-    latitude,
-    longitude,
-    zoom,
-  };
-}
-
-
-
-
-
-
-
-function MapPositionSaver({ onChange }) {
-  const initializedRef = useRef(false);
-  const timeoutRef = useRef(null);
-
-  const map = useMapEvents({
-    moveend() {
-      if (!initializedRef.current) {
-        initializedRef.current = true;
-        return;
-      }
-
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-
-      window.clearTimeout(timeoutRef.current);
-
-      timeoutRef.current = window.setTimeout(() => {
-        onChange({
-          latitude: center.lat,
-          longitude: center.lng,
-          zoom,
-        });
-      }, 500);
-    },
-  });
-
-  useEffect(() => {
-    return () => {
-      window.clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
-  return null;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export default function MapPage() {
   const { t } = useTranslation();
   const toast = useToast();
 
   const [loading, setLoading] = useState(true);
+
   const [mapPosition, setMapPosition] = useState(
     DEFAULT_MAP_POSITION
   );
 
+  const [addresses, setAddresses] = useState([]);
+
+  const [
+    selectedAddressID,
+    setSelectedAddressID,
+  ] = useState(null);
+
+  const [
+    changingOutput,
+    setChangingOutput,
+  ] = useState("");
+
+  const [demoMode, setDemoMode] =
+    useState(false);
+
   useEffect(() => {
     let active = true;
 
-    const loadMapSettings = async () => {
+    async function loadMapData() {
       setLoading(true);
 
       try {
-        const response = await sendDataToServer({
-          op: "getMapSettings",
-        });
+        const [
+          settingsResponse,
+          addressesResponse,
+        ] = await Promise.all([
+          sendDataToServer({
+            op: "getMapSettings",
+          }),
+
+          sendDataToServer({
+            op: "getMuraenaTXAddresses",
+          }),
+        ]);
 
         if (!active) {
           return;
         }
 
-        if (!response) {
-          throw new Error("No response");
+        if (
+          !settingsResponse ||
+          (
+            settingsResponse.status &&
+            settingsResponse.status !== "OK"
+          )
+        ) {
+          throw new Error(
+            settingsResponse?.status ||
+              "No settings response"
+          );
         }
 
         if (
-          response.status &&
-          response.status !== "OK"
+          !addressesResponse ||
+          (
+            addressesResponse.status &&
+            addressesResponse.status !== "OK"
+          )
         ) {
-          throw new Error(response.status);
+          throw new Error(
+            addressesResponse?.status ||
+              "No addresses response"
+          );
         }
 
-        setMapPosition(
-          parseMapPosition(response.mappos)
+        const nextMapPosition =
+          parseMapPosition(
+            settingsResponse.mappos
+          );
+
+        const nextAddresses =
+          prepareMapAddresses(
+            addressesResponse.rows,
+            nextMapPosition
+          );
+
+        setMapPosition(nextMapPosition);
+        setAddresses(nextAddresses);
+
+        setDemoMode(
+          Boolean(addressesResponse.demo)
         );
       } catch (error) {
         console.error(
-          "Failed to load map settings:",
+          "Failed to load map data:",
           error
         );
 
-        toast.error(t("map.errors.load_failed"));
+        toast.error(
+          t("map.errors.load_failed")
+        );
       } finally {
         if (active) {
           setLoading(false);
         }
       }
-    };
+    }
 
-    loadMapSettings();
+    loadMapData();
 
     return () => {
       active = false;
     };
   }, [t, toast]);
 
-  const center = useMemo(
-    () => [
-      mapPosition.latitude,
-      mapPosition.longitude,
-    ],
+
+
+
+const handleAddressSelect = useCallback(
+  (id) => {
+    setSelectedAddressID(id);
+  },
+  []
+);
+
+
+
+  const saveMapPosition = useCallback(
+    async (nextPosition) => {
+      try {
+        const response =
+          await sendDataToServer({
+            op: "saveMapSettings",
+
+            mappos:
+              formatMapPosition(
+                nextPosition
+              ),
+          });
+
+        if (
+          !response ||
+          (
+            response.status &&
+            response.status !== "OK"
+          )
+        ) {
+          throw new Error(
+            response?.status ||
+              "No response"
+          );
+        }
+
+        setMapPosition(nextPosition);
+      } catch (error) {
+        console.error(
+          "Failed to save map position:",
+          error
+        );
+
+        toast.error(
+          t("map.errors.save_failed")
+        );
+      }
+    },
+    [t, toast]
+  );
+
+  const saveAddressPosition = useCallback(
+    async (id, latitude, longitude) => {
+      if (demoMode) {
+        return;
+      }
+
+      const previousAddress =
+        addresses.find(
+          (address) =>
+            address.id === id
+        );
+
+      setAddresses((current) =>
+        current.map((address) =>
+          address.id === id
+            ? {
+                ...address,
+                latitude,
+                longitude,
+              }
+            : address
+        )
+      );
+
+      try {
+        const response =
+          await sendDataToServer({
+            op: "updateMapAddressLatLng",
+            id,
+
+            latlng: formatLatLng(
+              latitude,
+              longitude
+            ),
+          });
+
+        if (
+          !response ||
+          (
+            response.status &&
+            response.status !== "OK"
+          )
+        ) {
+          throw new Error(
+            response?.status ||
+              "No response"
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Failed to save address position:",
+          error
+        );
+
+        if (previousAddress) {
+          setAddresses((current) =>
+            current.map((address) =>
+              address.id === id
+                ? previousAddress
+                : address
+            )
+          );
+        }
+
+        toast.error(
+          t("map.errors.save_failed")
+        );
+      }
+    },
     [
-      mapPosition.latitude,
-      mapPosition.longitude,
+      addresses,
+      demoMode,
+      t,
+      toast,
     ]
   );
 
+  const handleOutputClick = useCallback(
+    async (row, outputIndex) => {
+      if (
+        changingOutput ||
+        demoMode
+      ) {
+        return;
+      }
 
+      const actionKey =
+        `${row.address_hex}-${outputIndex}`;
 
+      const maskBits = String(
+        row.mask_binary || "00000000"
+      )
+        .padStart(8, "0")
+        .slice(-8)
+        .split("");
 
+      const commandValue =
+        Number.isInteger(row.command)
+          ? row.command
+          : Number.parseInt(
+              row.command_hex || "00",
+              16
+            );
 
+      const commandBits = commandValue
+        .toString(2)
+        .padStart(8, "0")
+        .slice(-8)
+        .split("");
 
+      const maskEnabled =
+        maskBits[outputIndex] === "1";
 
-    const saveMapPosition = async ({
-        latitude,
-        longitude,
-        zoom,
-    }) => {
-    const mappos = [
-        latitude.toFixed(5),
-        longitude.toFixed(5),
-        zoom,
-    ].join(":");
+      const commandEnabled =
+        commandBits[outputIndex] === "1";
 
-    try {
-        const response = await sendDataToServer({
-        op: "saveMapSettings",
-        mappos,
-        });
-
-        if (!response) {
-        throw new Error("No response");
-        }
-
-        if (
-        response.status &&
-        response.status !== "OK"
-        ) {
-        throw new Error(response.status);
-        }
-
-        setMapPosition({
-        latitude,
-        longitude,
-        zoom,
-        });
-    } catch (error) {
-        console.error(
-        "Failed to save map position:",
-        error
+      const nextState =
+        getNextOutputState(
+          maskEnabled,
+          commandEnabled
         );
 
-        toast.error(t("map.errors.save_failed"));
-    }
-    };
+      maskBits[outputIndex] =
+        nextState.maskEnabled
+          ? "1"
+          : "0";
 
+      commandBits[outputIndex] =
+        nextState.commandEnabled
+          ? "1"
+          : "0";
 
+      const nextMask =
+        bitsToByte(maskBits);
 
+      const nextCommand =
+        bitsToByte(commandBits);
 
+      const nextCommandHex =
+        nextCommand
+          .toString(16)
+          .toUpperCase()
+          .padStart(2, "0");
 
+      const nextMaskBinary =
+        nextMask
+          .toString(2)
+          .padStart(8, "0");
 
+      setChangingOutput(actionKey);
 
+      try {
+        const response =
+          await sendDataToServer({
+            op: "setMuraenaTXOutputState",
 
+            address:
+              row.address_hex,
 
+            command:
+              nextCommandHex,
 
+            mask:
+              nextMaskBinary,
+          });
 
+        if (
+          !response ||
+          (
+            response.status &&
+            response.status !== "OK"
+          )
+        ) {
+          throw new Error(
+            response?.status ||
+              "No response"
+          );
+        }
 
+        setAddresses((current) =>
+          current.map((address) => {
+            if (
+              address.address_hex !==
+              row.address_hex
+            ) {
+              return address;
+            }
 
+            return {
+              ...address,
+
+              command:
+                nextCommand,
+
+              command_hex:
+                nextCommandHex,
+
+              mask:
+                nextMask,
+
+              mask_binary:
+                nextMaskBinary,
+
+              updated_at:
+                response.updated_at ??
+                address.updated_at,
+            };
+          })
+        );
+      } catch (error) {
+        console.error(
+          "Failed to change output:",
+          error
+        );
+
+        toast.error(
+          t(
+            "muraenatx.output.change_failed"
+          )
+        );
+      } finally {
+        setChangingOutput("");
+      }
+    },
+    [
+      changingOutput,
+      demoMode,
+      t,
+      toast,
+    ]
+  );
 
   return (
-
     <Container
-    maxWidth={false}
-    disableGutters
-    sx={{
+      maxWidth={false}
+      disableGutters
+      sx={{
         display: "flex",
         flexDirection: "column",
+
         height: {
-        xs: "calc(100dvh - 90px)",
-        sm: "calc(100dvh - 110px)",
+          xs: "calc(100dvh - 90px)",
+          sm: "calc(100dvh - 110px)",
         },
+
         px: {
-        xs: 1,
-        sm: 2,
+          xs: 1,
+          sm: 2,
         },
+
         overflow: "hidden",
-    }}
+      }}
     >
-        <TitleBlock>
-            <MapIcon />
-            {t("map.title")}
-        </TitleBlock>
+      <TitleBlock>
+        <MapIcon />
+        {t("map.title")}
+      </TitleBlock>
 
-
-
-
-        <Box
+      <Box
         sx={{
-            position: "relative",
-            flex: 1,
-            minHeight: 0,
-            mb: 2,
-            overflow: "hidden",
-            border: "1px solid",
-            borderColor: "divider",
-            borderRadius: 1,
-            backgroundColor: "background.paper",
+          position: "relative",
+          flex: 1,
+          minHeight: 0,
+          mb: 2,
+          overflow: "hidden",
+
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 1,
+
+          backgroundColor:
+            "background.paper",
         }}
-        >
+      >
         {loading ? (
-            <Box
-            sx={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-            }}
-            >
-            <CircularProgress />
-            </Box>
+          <MapLoader />
         ) : (
-            <>
-            <MapContainer
-                center={center}
-                zoom={mapPosition.zoom}
-                scrollWheelZoom
-                style={{
-                width: "100%",
-                height: "100%",
-                }}
-            >
-                <TileLayer
-                attribution={
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }
-                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                maxZoom={19}
-                />
+          <MapCanvas
+            mapPosition={
+              mapPosition
+            }
 
-                <MapPositionSaver
-                onChange={saveMapPosition}
-                />
-            </MapContainer>
+            addresses={
+              addresses
+            }
 
-            <AddIcon
-                sx={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                zIndex: 1000,
-                width: 40,
-                height: 40,
-                color: "error.main",
-                pointerEvents: "none",
-                transform: "translate(-50%, -50%)",
-                filter:
-                    "drop-shadow(0 0 2px rgba(255, 255, 255, 1))",
-                }}
-            />
-            </>
+            selectedAddressID={
+              selectedAddressID
+            }
+
+            changingOutput={
+              changingOutput
+            }
+
+            actionsDisabled={
+              Boolean(changingOutput) ||
+              demoMode
+            }
+
+            onAddressSelect={
+              handleAddressSelect
+            }
+
+            onOutputClick={
+              handleOutputClick
+            }
+
+            onMapPositionChange={
+              saveMapPosition
+            }
+
+            onAddressPositionChange={
+              saveAddressPosition
+            }
+          />
         )}
-        </Box>
-
-
-
-
-
-        </Container>
-
+      </Box>
+    </Container>
   );
 }
