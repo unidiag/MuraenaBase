@@ -41,6 +41,78 @@
     }
   },
 
+  "api": {
+  "title": "MuraenaBase API",
+  "description": "Reference for controlling MuraenaTX outputs through the HTTP API.",
+  "get_only": "All API v2 endpoints use the HTTP GET method.",
+  "base_url": "Base URL",
+  "base_url_description": "Append the required API method path to this address.",
+  "endpoints": "API endpoints",
+  "endpoints_description": "All responses are returned as UTF-8 encoded JSON.",
+  "request_example": "Request example",
+  "response_example": "Response example",
+
+  "authentication": {
+    "title": "Authentication",
+    "description": "The API key can be provided as a Bearer token or through the X-API-Key header.",
+    "bearer": "Authorization Bearer",
+    "header": "X-API-Key header",
+    "security": "Do not place the API key in the URL and do not publish it in client-side JavaScript."
+  },
+
+  "states": {
+    "disabled": "disabled",
+    "enabled": "enabled",
+    "warning": "warning"
+  },
+
+  "methods": {
+    "index": {
+      "title": "List methods",
+      "description": "Returns the API name, version and available methods."
+    },
+    "list": {
+      "title": "List addresses",
+      "description": "Returns all MuraenaTX address records from the database."
+    },
+    "address": {
+      "title": "Get address",
+      "description": "Returns one address record by its internal numeric ID."
+    },
+    "get_state": {
+      "title": "Get output state",
+      "description": "Finds an output by its unique billing ID and returns its current state."
+    },
+    "set_state": {
+      "title": "Set output state",
+      "description": "Sets an output state by unique billing ID: 0 — disabled, 1 — enabled, 2 — warning."
+    },
+    "tx": {
+      "title": "Transmitter state",
+      "description": "Returns the current MuraenaTX transmission state."
+    },
+    "tx_on": {
+      "title": "Enable transmitter",
+      "description": "Enables MuraenaTX transmission and saves the state in the device NVS."
+    },
+    "tx_off": {
+      "title": "Disable transmitter",
+      "description": "Disables MuraenaTX transmission and saves the state in the device NVS."
+    }
+  },
+
+  "errors": {
+    "title": "Errors",
+    "description": "When an error occurs, the server returns a JSON object containing the error field.",
+    "bad_request": "invalid ID, billing ID, state or request path",
+    "unauthorized": "the API key is missing or invalid",
+    "not_found": "the record, billing ID or API method was not found",
+    "method_not_allowed": "an HTTP method other than GET was used",
+    "internal": "internal server or database error",
+    "gateway": "communication error with the MuraenaTX device"
+  }
+},
+
 
   "muraenatx": {
     "addresses": {

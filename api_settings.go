@@ -98,3 +98,14 @@ func apiRestartProgram(ctx *ApiCtx) map[string]any {
 	out["status"] = "OK"
 	return out
 }
+
+func apiGetAPIInfo(ctx *ApiCtx) map[string]any {
+	out := ctx.Out
+
+	apiKey := strings.TrimSpace(getSetting("apikey"))
+
+	out["enabled"] = apiKey != ""
+	out["api_key"] = apiKey
+
+	return out
+}

@@ -16,7 +16,7 @@ const APPNAME = "MuraenaBase"
 const APPLINK = "http://github.com/unidiag/MuraenaBase"
 const VERSION = "1.02"
 const BUILD_DATE = "2026-07-31"
-const BUILD_TIME = "10:18:48"
+const BUILD_TIME = "13:30:33"
 
 var dbname = "mbase:mbase@tcp(127.0.0.1:3306)/mbase?charset=utf8mb4&parseTime=True&loc=Local"
 
