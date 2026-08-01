@@ -86,7 +86,7 @@ func initDB() bool {
 		setSetting("dev", "/dev/ttyACM0", "MuraenaTX dev path", "1")
 		setSetting("whitelist", "", "ALLOWED addresses and countries (separated by commas)", "2")
 		setSetting("blacklist", "CN, 178.24.52.115", "PROHIBITED addresses and countries (separated by commas)", "3")
-		setSetting("apikey", "", "API-key for external services /api/v2/..", "4")
+		setSetting("apikey", "CHANGE_APIKEY_IN_SETTINGS_BY_ROOT", "API-key for external services /api/v2/..", "4")
 		setSetting("mappos", "53.89372:27.56521:13", "LAT:LNG:ZOOM for map", "5")
 
 		if setupCfg.InstallSvc {

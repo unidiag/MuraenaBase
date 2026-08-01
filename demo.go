@@ -291,10 +291,17 @@ func initDemoSettings() {
 	)
 
 	setSetting(
+		"apikey",
+		"CHANGE_APIKEY_IN_SETTINGS_BY_ROOT",
+		"API key. If empty - disabled.",
+		"6",
+	)
+
+	setSetting(
 		"demo",
 		"1",
 		"Demo mode",
-		"6",
+		"7",
 	)
 }
 

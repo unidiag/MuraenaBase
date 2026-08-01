@@ -486,6 +486,7 @@ export default function ApiPage() {
                 label={`0 — ${t(
                   "api.states.disabled"
                 )}`}
+                color="error"
                 size="small"
               />
 
