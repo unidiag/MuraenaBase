@@ -19,7 +19,7 @@ export default function TitleBlock({ children, t1, t2, t3 }) {
           alignItems: { xs: "flex-start", sm: "center" },
         }}
       >
-        <Box sx={{ mb: { xs: 1, sm: 2 } }}>
+        <Box sx={{ mb: { xs: 1, sm: 0 } }}>
           <Typography variant="h4" component="div">
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {children}

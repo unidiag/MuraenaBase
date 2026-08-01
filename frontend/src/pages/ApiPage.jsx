@@ -228,7 +228,7 @@ export default function ApiPage() {
 
   return (
     <Container
-      maxWidth="lg"
+      maxWidth="xl"
       sx={{
         pb: 4,
       }}
